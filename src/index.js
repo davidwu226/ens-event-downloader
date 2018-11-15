@@ -32,7 +32,7 @@ async function refreshWeb3(web3) {
 
 class Downloader {
 
-  constructor(id, start, end) {
+  constructor(id, start, end, path) {
     this.status = {
       id,
       startTime: new Date(),
@@ -48,6 +48,8 @@ class Downloader {
       rate: 0,
       events: {},
     }
+
+    this.path = path
   }
 
   async updateStatus() {
@@ -80,7 +82,7 @@ class Downloader {
           events.forEach(e => {
             this.status.events[e.event] = (this.status.events[e.event] || 0) + 1
           })
-          fs.writeFileSync(`ens-events-${fromBlock}-${toBlock}`, JSON.stringify(events, null, 2))
+          fs.writeFileSync(`${this.path}${fromBlock}-${toBlock}`, JSON.stringify(events, null, 2))
           break
         } catch (err) {
           console.log(err)
@@ -115,7 +117,7 @@ async function main() {
 
   let id = 0
   for (let i = start; i < end; i += division) {
-    const downloader = new Downloader(id++, i, i + division - 1)
+    const downloader = new Downloader(id++, i, i + division - 1, path)
     downloader.start()
     downloaders.push(downloader)
   }
